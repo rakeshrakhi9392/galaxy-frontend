@@ -69,7 +69,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "API and MCP",
-    href: "https://galaxy-api.mintlify.app/introduction",
+    href: "https://abcd-311b96b4.mintlify.app/introduction",
     external: true,
     icon: <BookOpen className="h-5 w-5" aria-hidden="true" />,
   },

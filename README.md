@@ -8,9 +8,9 @@ Next.js App Router editor for AI workflows. React Flow canvas, schema-driven nod
 
 | Resource | URL |
 | --- | --- |
-| App | `https://YOUR-APP.vercel.app` (replace after deploy) |
-| API docs | `https://YOUR-SUBDOMAIN.mintlify.app` |
-| Backend API | `https://YOUR-API.vercel.app/api/v1` |
+| App | `https://galaxy-frontend-five.vercel.app` |
+| API docs | `https://abcd-311b96b4.mintlify.app` |
+| Backend API | `https://galaxy-backend-kappa.vercel.app/api/v1` |
 
 ---
 

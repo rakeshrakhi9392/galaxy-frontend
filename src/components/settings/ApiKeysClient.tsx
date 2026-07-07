@@ -113,7 +113,7 @@ export function ApiKeysClient() {
           </p>
         </div>
         <a
-          href="https://galaxy-api.mintlify.app/introduction"
+          href="https://abcd-311b96b4.mintlify.app/introduction"
           target="_blank"
           rel="noopener noreferrer"
           className="shrink-0 text-sm text-indigo-600 hover:underline"
