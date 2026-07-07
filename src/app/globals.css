@@ -1,0 +1,394 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 60 8% 98%;
+  --foreground: 60 4% 10%;
+  --card: 60 8% 98%;
+  --card-foreground: 60 4% 10%;
+  --popover: 60 11% 96%;
+  --popover-foreground: 60 4% 10%;
+  --primary: 0 0% 9%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 96.1%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96.1%;
+  --muted-foreground: 0 0% 45.1%;
+  --accent: 0 0% 96.1%;
+  --accent-foreground: 0 0% 9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 89.8%;
+  --input: 0 0% 89.8%;
+  --ring: 0 0% 3.9%;
+  --radius: 0.5rem;
+
+  --brand-neutral-light-0: #ffffff;
+  --brand-neutral-light-200: #f9f9f9;
+  --brand-neutral-light-400: #f5f5f5;
+  --brand-neutral-light-500: #f4f4f4;
+  --brand-neutral-light-700: #f0f0f0;
+  --brand-neutral-light-800: #ececec;
+  --brand-neutral-light-a200: #444444;
+  --brand-neutral-dark-0: #ffffff;
+  --brand-neutral-dark-100: #e0e0e2;
+  --brand-neutral-dark-200: #c2c2c4;
+  --brand-neutral-dark-300: #a3a3a7;
+  --brand-neutral-dark-400: #858589;
+  --brand-neutral-dark-500: #66666c;
+  --brand-neutral-dark-700: #525256;
+  --brand-neutral-dark-900: #3d3d41;
+  --brand-neutral-dark-1300: #141416;
+
+  --surface-main-background: var(--brand-neutral-light-200);
+  --surface-main-background-2: var(--brand-neutral-light-500);
+  --surface-main-background-3: var(--brand-neutral-light-0);
+  --surface-primary: var(--brand-neutral-light-400);
+  --surface-secondary: var(--brand-neutral-light-700);
+  --surface-tertiary: var(--brand-neutral-light-800);
+  --surface-on-action: var(--brand-neutral-light-a200);
+
+  --space-default-padding: 12px;
+
+  --shadow-sm: 0px 1px 3px 0px rgba(26, 26, 24, 0.06), 0px 1px 2px 0px rgba(26, 26, 24, 0.04);
+
+  --text-primary: var(--brand-neutral-dark-900);
+  --text-secondary: var(--brand-neutral-dark-400);
+  --text-tertiary: var(--brand-neutral-dark-300);
+
+  --icon-primary: var(--brand-neutral-dark-900);
+  --icon-tertiary: var(--brand-neutral-dark-200);
+  --icon-on-action: var(--brand-neutral-dark-0);
+
+  --boarder-primary: var(--brand-neutral-dark-500);
+  --boarder-tertiary: var(--brand-neutral-dark-100);
+  --boarder-secondary: var(--brand-neutral-dark-200);
+
+  --space-02: 4px;
+  --space-03: 8px;
+  --space-04: 12px;
+  --space-05: 16px;
+  --space-06: 20px;
+  --space-07: 24px;
+  --space-08: 32px;
+  --space-09: 40px;
+
+  --radius-l: 8px;
+  --radius-xl: 12px;
+  --radius-xxl: 16px;
+  --radius-xxxl: 20px;
+
+  --border-width-xs: 0.3px;
+  --border-width-s: 0.5px;
+
+  --shadow-xl: 0px 24px 32px -8px rgba(26, 26, 24, 0.12),
+    0px 8px 12px -6px rgba(26, 26, 24, 0.06);
+  --shadow-popover: var(--shadow-xl);
+
+  --text-on-action: var(--brand-neutral-dark-0);
+
+  --galaxy-surface-main: #ffffff;
+  --galaxy-surface-primary: #efeff0;
+  --galaxy-surface-secondary: #e0e0e2;
+  --galaxy-surface-tertiary: #f6f6f6;
+  --galaxy-text-primary: #141416;
+  --galaxy-text-secondary: #858589;
+  --galaxy-text-tertiary: #a3a3a7;
+  --galaxy-border-primary: #e0e0e2;
+  --galaxy-border-secondary: #ceced0;
+  --brand-indigo-400: #726beb;
+  --brand-indigo-500: #4f46e6;
+  --brand-indigo-600: #3f38b8;
+  --brand-indigo-700: #2f2a8a;
+  --brand-green-500: #16a34a;
+  --brand-green-600: #12823b;
+  --brand-green-100: #d0eddb;
+  --brand-green-800: #09411e;
+  --brand-red-100: #f8d4d4;
+  --brand-blue-100: #cee0fc;
+  --brand-blue-700: #073b91;
+
+  --surface-disabled: var(--brand-neutral-light-600);
+  --surface-success-disabled: var(--brand-green-100);
+  --surface-information-disabled: var(--brand-blue-100);
+  --surface-error-disabled: var(--brand-red-100);
+
+  --text-success: var(--brand-green-500);
+  --text-success-disabled: var(--brand-green-800);
+  --text-information-disabled: var(--brand-blue-700);
+  --text-error-disabled: #b01e1e;
+
+  --radius-m: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 93%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 93%;
+    --border: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+  }
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: "Google Sans Flex", var(--font-inter), "Inter", sans-serif;
+  font-style: normal;
+}
+
+.font-body {
+  font-family: var(--font-inter), "Inter", system-ui, sans-serif;
+}
+
+.text-heading-lg-google {
+  font-family: "Google Sans Flex", var(--font-inter), "Inter", sans-serif;
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+
+.text-body {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-heading-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+}
+
+.text-caption {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.text-small {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+
+.text-button {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+}
+
+.text-button-google {
+  font-family: "Google Sans Flex", var(--font-inter), "Inter", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+
+.text-body-google {
+  font-family: "Google Sans Flex", var(--font-inter), "Inter", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+.text-section-title-google {
+  font-family: "Google Sans Flex", var(--font-inter), "Inter", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+.text-workflow-card-name-google {
+  font-family: "Google Sans Flex", var(--font-inter), "Inter", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: normal;
+  color: #1b1b18;
+}
+
+.text-workflow-hub-title-google {
+  font-family: "Google Sans Flex", var(--font-inter), "Inter", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+
+.text-workflow-hub-tab-active-google {
+  font-family: "Google Sans Flex", var(--font-inter), "Inter", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+.text-workflow-hub-tab-inactive-google {
+  font-family: "Google Sans Flex", var(--font-inter), "Inter", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #58585c;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-tertiary) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--surface-tertiary);
+  border-radius: 999px;
+}
+
+.scrollbar-thin:hover::-webkit-scrollbar-thumb {
+  background: var(--boarder-secondary);
+}
+
+.chat-sidebar-nav-item:hover {
+  background: var(--surface-primary);
+}
+
+.chat-sidebar-nav-item-active {
+  background: var(--surface-primary);
+}
+
+.chat-sidebar-shell {
+  transition: width 200ms ease;
+}
+
+.react-flow__node {
+  overflow: visible !important;
+}
+
+.react-flow__node.selected {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.react-flow__edge-path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+/* Screen-fixed canvas chrome — inset from canvas edges; history panel reserves right padding. */
+.workflow-canvas-overlay {
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* MiniMap stays inside React Flow for store access; positioned to match overlay chrome. */
+.react-flow__panel.workflow-minimap {
+  z-index: 40;
+  margin: 0 !important;
+  border-radius: var(--radius) !important;
+  background-color: #18181b !important;
+  border-color: #3f3f46 !important;
+}
+
+.workflow-structure-preview .react-flow__node {
+  pointer-events: none !important;
+}
+
+.workflow-structure-preview .react-flow__edge-path {
+  stroke-dasharray: none;
+  animation: none;
+  pointer-events: none;
+}
+
+.workflow-structure-preview .react-flow__pane {
+  cursor: grab;
+}
+
+.workflow-structure-preview .react-flow__pane.dragging {
+  cursor: grabbing;
+}
+
+.workflow-structure-preview .react-flow__panel.workflow-structure-minimap,
+.workflow-structure-preview .react-flow__minimap {
+  position: absolute !important;
+  top: auto !important;
+  left: auto !important;
+  right: 8px !important;
+  bottom: 8px !important;
+  margin: 0 !important;
+}
+
+.chat-upload-popover {
+  z-index: 50;
+  display: flex;
+  width: min(80vw, 246px);
+  max-width: calc(100vw - var(--space-08));
+  flex-direction: column;
+  gap: var(--space-04);
+  padding: var(--space-05);
+  color: var(--text-primary);
+  background: var(--surface-secondary);
+  border: var(--border-width-xs) solid var(--boarder-tertiary);
+  border-radius: var(--radius-xxxl);
+  box-shadow: var(--shadow-popover);
+}
+
+.chat-upload-popover-action {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-03);
+  border-radius: var(--radius-xl);
+  padding: var(--space-03) var(--space-04);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  transition: background-color 150ms ease, opacity 150ms ease;
+}
+
+.chat-upload-popover-action-secondary {
+  border: var(--border-width-xs) solid var(--boarder-tertiary);
+  background: var(--surface-main-background-3);
+  color: var(--text-primary);
+}
+
+.chat-upload-popover-action-secondary:hover {
+  background: var(--surface-tertiary);
+}
+
+.chat-upload-popover-action-primary {
+  border: none;
+  background: var(--brand-indigo-500);
+  color: var(--brand-neutral-dark-0);
+}
+
+.chat-upload-popover-action-primary:hover {
+  background: var(--brand-indigo-600);
+}
