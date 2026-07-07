@@ -27,7 +27,7 @@
         "./src/*"
       ],
       "@galaxy/schemas": [
-        "../backend/src/schemas/index.ts"
+        "./packages/galaxy-src/schemas/index.ts"
       ]
     }
   },

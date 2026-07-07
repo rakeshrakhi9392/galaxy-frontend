@@ -13,7 +13,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@galaxy/schemas": path.resolve(__dirname, "../backend/src/schemas/index.ts"),
+      "@galaxy/schemas": path.resolve(__dirname, "./packages/galaxy-src/schemas/index.ts"),
     },
   },
 });

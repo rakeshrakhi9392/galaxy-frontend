@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "prebuild": "node scripts/vendor-schemas.mjs",
-    "build": "pnpm generate:nodes && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.5.12",
-    "@galaxy/schemas": "file:../backend/src/schemas",
+    "@galaxy/schemas": "file:./packages/galaxy-src",
     "@trigger.dev/react-hooks": "4.5.0",
     "lucide-react": "^1.23.0",
     "next": "15.5.20",

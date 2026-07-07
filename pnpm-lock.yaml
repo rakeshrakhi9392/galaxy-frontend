@@ -12,8 +12,8 @@ importers:
         specifier: ^7.5.12
         version: 7.5.12(next@15.5.20(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@galaxy/schemas':
-        specifier: file:../backend/src/schemas
-        version: file:../backend/src/schemas
+        specifier: file:./packages/galaxy-src
+        version: file:packages/galaxy-src
       '@trigger.dev/react-hooks':
         specifier: 4.5.0
         version: 4.5.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -410,8 +410,8 @@ packages:
       '@noble/hashes':
         optional: true
 
-  '@galaxy/schemas@file:../backend/src/schemas':
-    resolution: {directory: ../backend/src/schemas, type: directory}
+  '@galaxy/schemas@file:packages/galaxy-src':
+    resolution: {directory: packages/galaxy-src, type: directory}
 
   '@google-cloud/precise-date@4.0.0':
     resolution: {integrity: sha512-1TUx3KdaU3cN7nfCdNf+UVqA/PSX29Cjcox3fZZBtINlRrXVTmUkQnCKv2MbBUbCopbK4olAT1IHl76uZyCiVA==}
@@ -3484,7 +3484,7 @@ snapshots:
 
   '@exodus/bytes@1.15.1': {}
 
-  '@galaxy/schemas@file:../backend/src/schemas':
+  '@galaxy/schemas@file:packages/galaxy-src':
     dependencies:
       zod: 4.4.3
 
