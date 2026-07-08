@@ -116,6 +116,48 @@ describe("executionReducer", () => {
     expect(state.nodeStatuses).toEqual({ "node-b": "RUNNING" });
   });
 
+  it("keeps failed node status visible while the run is still active", () => {
+    const run = makeWorkflowRun({ id: "run-live", status: "RUNNING" });
+    let state = executionReducer(createInitialExecutionState(), {
+      type: "run_created",
+      run,
+    });
+
+    state = executionReducer(state, {
+      type: "node_runs_received",
+      runId: "run-live",
+      nodeRuns: [makeNodeRun({ nodeId: "node-a", status: "FAILED", input: null, output: null })],
+    });
+
+    expect(state.nodeStatuses["node-a"]).toBe("FAILED");
+  });
+
+  it("does not downgrade a terminal run back to running on stale updates", () => {
+    const run = makeWorkflowRun({ id: "run-live", status: "RUNNING" });
+    let state = executionReducer(createInitialExecutionState(), {
+      type: "run_created",
+      run,
+    });
+
+    state = executionReducer(state, {
+      type: "run_updated",
+      run: {
+        ...run,
+        status: "FAILED",
+        finishedAt: "2026-07-01T10:00:05.000Z",
+        errorSummary: "Failed at gpt-image-2 (img-1)",
+      },
+    });
+
+    state = executionReducer(state, {
+      type: "run_updated",
+      run: { ...run, status: "RUNNING" },
+    });
+
+    expect(state.history[0]?.status).toBe("FAILED");
+    expect(state.history[0]?.finishedAt).toBe("2026-07-01T10:00:05.000Z");
+  });
+
   it("clears live node glow once the run reaches a terminal state", () => {
     const run = makeWorkflowRun({ id: "run-live", status: "RUNNING" });
     let state = executionReducer(createInitialExecutionState(), {

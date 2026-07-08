@@ -85,7 +85,8 @@ describe("validateNodeInputs", () => {
     ];
     expect(validateNodesForRun(nodes, ["ok"])).toEqual([]);
     expect(validateNodesForRun(nodes, ["bad"]).length).toBeGreaterThan(0);
-    expect(validateNodesForRun(nodes).length).toBeGreaterThan(0);
+    // Orphan nodes are outside the full-run closure from Request Inputs.
+    expect(validateNodesForRun(nodes)).toEqual([]);
   });
 
   it("accepts gpt-image-2 prompt wired from request for run validation", () => {
@@ -158,7 +159,7 @@ describe("validateNodeInputs", () => {
     expect(issues).toEqual([]);
   });
 
-  it("includes output validation in validateNodesForRun", () => {
+  it("does not validate stale lastOutput during validateNodesForRun", () => {
     const nodes = [
       node(
         "bad",
@@ -167,7 +168,26 @@ describe("validateNodeInputs", () => {
         { lastOutput: { video_url: "not-a-url" } },
       ),
     ];
-    expect(validateNodesForRun(nodes).length).toBeGreaterThan(0);
+    expect(validateNodesForRun(nodes)).toEqual([]);
+  });
+
+  it("accepts kling to extract-audio to merge-av without prior lastOutput", () => {
+    const nodes = [
+      node("req", "request", {}, {
+        dynamicFields: [{ id: "field_1", name: "prompt", type: "text", value: "a cat walking" }],
+      }),
+      node("kling", "kling-v3-pro", { mode: "text_to_video", prompt: "" }),
+      node("extract", "extract-audio", { video_url: "" }),
+      node("merge", "merge-av", { video_url: "", audio_url: "" }),
+    ];
+    const edges = [
+      edge("e1", "req", "kling", "field_1", "in:prompt"),
+      edge("e2", "kling", "extract", "out:result", "in:video_url"),
+      edge("e3", "kling", "merge", "out:result", "in:video_url"),
+      edge("e4", "extract", "merge", "out:audio_url", "in:audio_url"),
+    ];
+
+    expect(validateNodesForRun(nodes, undefined, edges)).toEqual([]);
   });
 
   it("formats issues for the editor banner", () => {

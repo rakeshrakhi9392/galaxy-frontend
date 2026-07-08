@@ -1,11 +1,12 @@
 import type { Edge, Node } from "reactflow";
 import {
-  buildPreRunOutputsByNodeId,
+  buildValidationOutputsByNodeId,
   inputFieldFromHandle,
   RequestDynamicFieldsSchema,
   resolveExecutionNodeIds,
   resolveNodeInputs,
   topologicalNodeOrder,
+  wiredInputFieldKeysFromUpstreamNodes,
   type WorkflowEdge,
   type WorkflowGraph,
   type WorkflowNode,
@@ -53,8 +54,9 @@ export type ValidateNodeInputsContext = {
 };
 
 /**
- * Resolve the inputs a node would receive at run time:
- * registry defaults + static node.data.inputs + wired edge values.
+ * Resolve inputs for pre-run validation: static node inputs plus request-field
+ * wires only. Upstream node outputs are supplied during the current run when
+ * execution reaches each node — not from prior runs or assumed wires.
  */
 export function resolveNodeInputsForValidation(
   node: Node,
@@ -70,7 +72,7 @@ export function resolveNodeInputsForValidation(
   }
 
   const graph = toWorkflowGraph(context.nodes, context.edges);
-  const outputsByNodeId = buildPreRunOutputsByNodeId(graph);
+  const outputsByNodeId = buildValidationOutputsByNodeId(graph);
   const resolved = resolveNodeInputs({
     node: node as WorkflowNode,
     graph,
@@ -81,6 +83,15 @@ export function resolveNodeInputsForValidation(
     ...defaults,
     ...resolved,
   };
+}
+
+function deferredWiredFieldKeys(
+  node: Node,
+  context?: ValidateNodeInputsContext,
+): Set<string> {
+  if (!context || context.nodes.length === 0) return new Set();
+  const graph = toWorkflowGraph(context.nodes, context.edges);
+  return wiredInputFieldKeysFromUpstreamNodes(graph, node.id);
 }
 
 export type NodeValidationIssue = {
@@ -210,11 +221,23 @@ export function validateNodeInputs(
   const schema = getNodeDefinition(nodeType)?.input;
   if (!schema) return requestIssues;
 
-  const result = schema.safeParse(resolveNodeInputsForValidation(node, context));
+  const resolved = resolveNodeInputsForValidation(node, context);
+  const result = schema.safeParse(resolved);
   if (result.success) {
     return [...requestIssues, ...validateProviderLimitsFromHintsForNode(node, context)];
   }
-  return [...requestIssues, ...issuesFromZodError(node, result.error)];
+
+  const deferredFields = deferredWiredFieldKeys(node, context);
+  const blockingIssues = result.error.issues.filter((issue) => {
+    const top = issue.path[0];
+    return typeof top !== "string" || !deferredFields.has(top);
+  });
+
+  if (blockingIssues.length === 0) {
+    return [...requestIssues, ...validateProviderLimitsFromHintsForNode(node, context)];
+  }
+
+  return [...requestIssues, ...issuesFromZodError(node, { issues: blockingIssues })];
 }
 
 /** Validate a node's last output (when present) with the shared Zod output schema. */
@@ -292,8 +315,8 @@ export function resolveRunValidationTargets(
 }
 
 /**
- * Validate inputs and cached outputs for nodes that will run.
- * Scoped to the same execution closure the backend uses.
+ * Validate inputs for nodes that will run.
+ * URL/media checks for upstream-wired fields are deferred until execution.
  */
 export function validateNodesForRun(
   nodes: Node[],
@@ -326,6 +349,5 @@ export function validateNodesForRun(
   return [
     ...targets.flatMap((node) => validateRequiredUiFields(node, context)),
     ...validateNodesInputs(targets, context),
-    ...validateNodesOutputs(targets),
   ];
 }

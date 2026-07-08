@@ -144,19 +144,20 @@ function useDebouncedCallback<T extends (...args: never[]) => void>(cb: T, delay
   );
 }
 
-/** Ephemeral client-only field: purple pulse while RUNNING (in-flight only). */
+/** Ephemeral client-only field: purple pulse while RUNNING, red while FAILED (in-flight only). */
 function applyNodeStatuses(nodes: Node[], statuses: ExecutionState["nodeStatuses"]): Node[] {
   return nodes.map((n) => {
     const st = statuses[n.id];
-    const shouldRun = st === "RUNNING";
+    const nextLive: "RUNNING" | "FAILED" | undefined =
+      st === "RUNNING" ? "RUNNING" : st === "FAILED" ? "FAILED" : undefined;
     const prev = (n.data as { liveExecutionStatus?: "RUNNING" | "FAILED" }).liveExecutionStatus;
 
-    if (!shouldRun && prev == null) return n;
-    if (shouldRun && prev === "RUNNING") return n;
+    if (nextLive === prev) return n;
+    if (nextLive == null && prev == null) return n;
 
     const data = { ...n.data } as Record<string, unknown>;
-    if (shouldRun) {
-      data.liveExecutionStatus = "RUNNING";
+    if (nextLive != null) {
+      data.liveExecutionStatus = nextLive;
     } else {
       delete data.liveExecutionStatus;
     }
@@ -898,6 +899,8 @@ export function WorkflowCanvas({
     if (!current) return;
 
     if (current.status === "RUNNING" || current.status === "QUEUED") {
+      // Ignore stale active snapshots after this run already settled.
+      if (handledTerminalRunIdsRef.current.has(current.id)) return;
       setRunStatus("running");
       return;
     }
@@ -919,25 +922,19 @@ export function WorkflowCanvas({
     dispatch({ type: "clear_node_statuses" });
     setNodes((ns) => stripLiveExecutionStatus(ns));
 
+    setRunStatus("idle");
+
     if (current.status === "SUCCESS") {
-      setRunStatus("done");
       onRunCompleted();
-      window.setTimeout(() => {
-        setRunStatus("idle");
-      }, 2000);
       return;
     }
 
-    setRunStatus("error");
     const failedNodeId =
       parseFailedNodeIdFromSummary(current.errorSummary) ??
       execution.nodeRuns.find((nr) => nr.status === "FAILED")?.nodeId ??
       null;
     if (failedNodeId) onRequestFocusNode?.(failedNodeId);
     onRunCompleted();
-    window.setTimeout(() => {
-      setRunStatus("idle");
-    }, 3500);
   }, [execution.currentRunId, execution.history, execution.nodeRuns, dispatch, onRunCompleted, onRequestFocusNode]);
 
   useEffect(() => {

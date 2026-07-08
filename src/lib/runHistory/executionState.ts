@@ -34,6 +34,22 @@ function runsVisuallyEqual(a: WorkflowRun, b: WorkflowRun): boolean {
   );
 }
 
+function isTerminalRunStatus(status: WorkflowRun["status"]): boolean {
+  return status === "SUCCESS" || status === "FAILED" || status === "CANCELLED";
+}
+
+function mergeRunUpdate(existing: WorkflowRun | undefined, incoming: WorkflowRun): WorkflowRun {
+  if (existing && isTerminalRunStatus(existing.status) && !isTerminalRunStatus(incoming.status)) {
+    return {
+      ...incoming,
+      status: existing.status,
+      finishedAt: existing.finishedAt ?? incoming.finishedAt,
+      errorSummary: existing.errorSummary ?? incoming.errorSummary,
+    };
+  }
+  return incoming;
+}
+
 function upsertRun(history: WorkflowRun[], run: WorkflowRun): WorkflowRun[] {
   const index = history.findIndex((r) => r.id === run.id);
   if (index === -1) return [run, ...history];
@@ -76,7 +92,9 @@ export function executionReducer(state: ExecutionState, action: ExecutionAction)
         history: upsertRun(state.history, action.run),
       };
     case "run_updated": {
-      const history = upsertRun(state.history, action.run);
+      const existing = state.history.find((r) => r.id === action.run.id);
+      const run = mergeRunUpdate(existing, action.run);
+      const history = upsertRun(state.history, run);
       if (history === state.history) return state;
       return { ...state, history };
     }
