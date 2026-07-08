@@ -14,163 +14,175 @@ Next.js App Router editor for AI workflows. React Flow canvas, schema-driven nod
 
 ---
 
-## Architecture
+## Setup Instructions
 
-```
-Browser
-   │
-   ▼
-Next.js (:3000) ── Clerk middleware (UI routes only)
-   │
-   ├── /workflows/*     React Flow editor, run history, settings
-   │
-   └── /api/v1/*        Rewritten → NEXT_PUBLIC_BACKEND_URL
-```
+### Prerequisites
 
-| Module | Path | Role |
-| --- | --- | --- |
-| Canvas | `src/components/workflows/editor/WorkflowCanvas.tsx` | Graph editing, save, run triggers |
-| Run history | `src/components/workflows/editor/RunHistory.tsx` | Realtime + polled execution state |
-| Node renderer | `src/components/workflows/nodes/SchemaDrivenNode.tsx` | Generic UI from `NodeUiConfig` |
-| Node registry | `src/generated/nodeRegistry.ts` | Codegen'd from backend catalog |
-| Shared schemas | `packages/schemas` (standalone) or `../backend/src/schemas` (monorepo) | Zod types + UI field config |
-| API client | `src/lib/api/` | Typed fetch wrappers |
+Node.js 22+, pnpm 9+, running backend + Trigger worker, Clerk account
 
-The frontend has **no business logic** for workflow execution — it persists graphs and enqueues runs via the backend REST API.
-
----
-
-## Design decisions
-
-### Same-origin API proxy
-
-`next.config.ts` rewrites `/api/v1/*` to the backend. This avoids CORS and keeps cookies simple. Clerk middleware **excludes** `/api/v1` so proxied POST bodies are not consumed by auth middleware.
-
-### Schema-driven nodes
-
-Nodes are not hand-built React components. `SchemaDrivenNode` reads `NodeUiConfig` from the generated registry. Adding a node type requires zero frontend code — only a backend catalog entry + `pnpm generate:nodes`.
-
-### Local state over global store
-
-Editor UI (`useEditorUI`) and execution state (`executionState.ts`) use hooks and reducers scoped to the editor. Zustand was deferred to keep ownership clear during iteration.
-
-### Standalone repo layout
-
-For submission, `@galaxy/schemas` is vendored under `packages/schemas/` so Vercel can build without a sibling backend checkout. The generated `nodeRegistry.ts` is committed; rebuild it from the backend when the catalog changes.
-
----
-
-## Trade-offs
-
-| Choice | Benefit | Cost |
-| --- | --- | --- |
-| Vendored schemas | Standalone Vercel deploy | Must re-sync after backend schema changes |
-| Committed node registry | Fast CI builds | Risk of FE/BE drift if codegen skipped |
-| API proxy | No CORS | Extra hop; backend URL must be set per environment |
-| Custom Tailwind UI | Pixel-accurate Galaxy clone | No shadcn component library |
-
----
-
-## Prerequisites
-
-- Node.js 22+
-- pnpm 9+
-- Running backend (local or deployed)
-- Clerk application
-
----
-
-## Setup
-
-### 1. Install
+### Commands
 
 ```bash
 pnpm install
 cp .env.example .env.local
-```
+# fill in .env.local (see below)
 
-### 2. Environment variables
-
-| Variable | Required | Description |
-| --- | --- | --- |
-| `NEXT_PUBLIC_BACKEND_URL` | Yes | Backend base URL, e.g. `http://localhost:4010` |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk publishable key |
-| `CLERK_SECRET_KEY` | Yes | Clerk secret (server components) |
-| `FRONTEND_URL` | Yes | Must match backend `FRONTEND_URL` for JWT audience |
-
-### 3. Schemas dependency
-
-**Monorepo** (sibling `backend/` folder):
-
-```json
-"@galaxy/schemas": "file:../backend/src/schemas"
-```
-
-**Standalone repo** (after `prepare-submission.ps1`):
-
-```json
-"@galaxy/schemas": "file:./packages/schemas"
-```
-
-### 4. Run
-
-```bash
-# Terminal 1 — backend on :4010
-cd ../backend && pnpm dev
+# Terminal 1 — backend API
+cd ../madasu-trial-backend-main && pnpm dev
 
 # Terminal 2 — Trigger worker
-cd ../backend && pnpm trigger:dev
+cd ../madasu-trial-backend-main && pnpm trigger:dev
 
 # Terminal 3 — frontend
 pnpm dev
 ```
 
-Open [http://localhost:3000/workflows](http://localhost:3000/workflows).
+Open [http://localhost:3000/workflows](http://localhost:3000/workflows)
 
-### 5. Regenerate node registry
-
-When the backend catalog changes:
+**Also:**
 
 ```bash
-pnpm generate:nodes   # requires sibling backend in monorepo
+pnpm test
+pnpm lint
+pnpm build
+```
+
+**Regenerate node registry (after backend catalog changes):**
+
+```bash
+pnpm generate:nodes
 git add src/generated/nodeRegistry.ts
 ```
 
----
-
-## Deploy (Vercel)
-
-1. Import this repo in Vercel.
-2. Framework: **Next.js**; Node.js **22.x**.
-3. Set environment variables (see above). `NEXT_PUBLIC_BACKEND_URL` must point to the deployed backend.
-4. Deploy.
-
-Ensure backend `FRONTEND_URL` matches this deployment URL.
-
----
-
-## Testing
+**Deploy:**
 
 ```bash
-pnpm test    # Vitest + React Testing Library
-pnpm lint
-pnpm build   # includes generate:nodes in monorepo layout
+pnpm build
 ```
 
+### Environment Variables
+
+| Variable | Example / Value |
+| --- | --- |
+| `NEXT_PUBLIC_BACKEND_URL` | `http://localhost:4010` |
+| `BACKEND_URL` | `http://localhost:4010` (server-only override) |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | from Clerk dashboard |
+| `CLERK_SECRET_KEY` | from Clerk dashboard |
+| `FRONTEND_URL` | `http://localhost:3000` |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | `/sign-in` |
+| `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | `/sign-up` |
+| `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL` | `/workflows` |
+| `NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL` | `/workflows` |
+
+`FRONTEND_URL` must match on both frontend and backend. On Vercel, set `NEXT_PUBLIC_BACKEND_URL` to your deployed backend URL.
+
 ---
 
-## If there were more time
+## Architecture Overview
 
-- **Zustand stores** with selectors to shrink `WorkflowCanvas.tsx` and `RunHistory.tsx`
-- **Playwright e2e** — create → save → run → verify history
-- **MSW** for API mocking in component tests
-- **Published `@galaxy/schemas`** npm package instead of vendored copy
-- **Optimistic save** with conflict resolution on concurrent edits
+```
+Browser
+   │
+   ▼
+Next.js (:3000) ── Clerk middleware (UI routes only; /api/v1 excluded)
+   │
+   ├── /workflows              workflow list + hub
+   ├── /workflows/[id]/canvas  React Flow editor + run history
+   ├── /workflows/settings     API keys
+   │
+   └── /api/v1/*  ──►  route handler proxy  ──►  Backend (:4010)
+```
+
+```
+Backend catalog (Zod + NodeUiConfig)
+        │
+        ▼  pnpm generate:nodes (from backend)
+src/generated/nodeRegistry.ts
+        │
+        ▼
+SchemaDrivenNode  ◄──►  WorkflowCanvas (React Flow)
+        │                      │
+@galaxy/schemas          /api/v1 proxy
+(vendored)                     │
+                               ▼
+                    Backend REST + Trigger.dev Realtime
+                               │
+                               ▼
+              RunHistory + live node status on canvas
+```
+
+### Layers
+
+| Layer | Location | Role |
+| --- | --- | --- |
+| **Routes** | `src/app/` | App Router pages — workflows, canvas, auth, settings |
+| **Canvas** | `src/components/workflows/editor/WorkflowCanvas.tsx` | Graph editing, connections, save, run triggers, live status |
+| **Workspace** | `src/components/workflows/editor/WorkflowWorkspace.tsx` | Editor shell — canvas + history panel + execution state |
+| **Node renderer** | `src/components/workflows/editor/nodes/SchemaDrivenNode.tsx` | Generic node UI from `NodeUiConfig` |
+| **Node registry** | `src/generated/nodeRegistry.ts` | Build-time config codegen'd from backend catalog |
+| **Shared schemas** | `packages/galaxy-src/` (`@galaxy/schemas`) | Zod types, graph validation, input resolution |
+| **API client** | `src/lib/backend.ts` + `useClientApi` | Typed fetch with Clerk token injection |
+| **API proxy** | `src/app/api/v1/[...path]/route.ts` | Same-origin proxy to backend (no CORS) |
+| **Execution state** | `src/lib/runHistory/executionState.ts` | Reducer for history, node statuses, current run |
+| **Realtime** | `src/lib/useWorkflowRunRealtime.ts` | Trigger.dev Realtime + DB poll merge |
+
+### User Flow
+
+1. User signs in via Clerk → lands on `/workflows`
+2. Opens a workflow canvas → graph loads from `GET /api/v1/workflows/:id`
+3. Edits nodes on React Flow canvas → debounced auto-save to backend
+4. Clicks run → frontend validates inputs (`validateNodeInputs`) → `POST /api/v1/workflows/:id/runs`
+5. `useWorkflowRunRealtime` subscribes to Trigger.dev metadata for live status
+6. Parallel poll fetches `GET /api/v1/runs/:id` for full node inputs/outputs/credits
+7. Canvas nodes update (idle → running → completed/failed)
+8. Run history panel shows per-node detail, errors, and downloadable assets
+
+### Schema-Driven Node Pipeline
+
+1. Backend defines node schemas + `NodeUiConfig` in catalog
+2. `pnpm generate:nodes` emits `nodeRegistry.ts`
+3. `nodeTypes.ts` maps every type → `SchemaDrivenNode`
+4. Handles, fields, defaults, and advanced settings render from config — no per-node React components
+5. Adding a node type = backend catalog entry + codegen (zero frontend code)
+
+### Key Design Points
+
+- **Thin client** — no workflow execution logic; persists graphs and enqueues runs via backend API
+- **Same-origin proxy** — browser calls `/api/v1/*` on the frontend origin; route handler forwards to backend
+- **Build-time node config** — node definitions are not fetched over HTTP at runtime
+- **Shared validation** — `@galaxy/schemas` + `resolveNodeInputs` used on FE and BE for consistent input resolution
+- **Realtime + poll hybrid** — Trigger Realtime for fast status; REST poll for full run detail (inputs, outputs, credits)
+- **Scoped state** — execution state via `useReducer`; no global store
 
 ---
 
-## Related
+## Design Decisions & Trade-offs
 
-- Backend repo: API, orchestration, providers, database
-- API docs: Mintlify site in backend repo `docs/`
-- Monorepo overview: see root `README.md` when developing locally
+### Schema-Driven Node UI
+
+All node types render through a single `SchemaDrivenNode` component driven by build-time `NodeUiConfig` from the backend catalog. Adding a node requires no frontend code — only codegen. The trade-off is a committed `nodeRegistry.ts` that must be regenerated when the backend catalog changes.
+
+### API Route Handler Proxy
+
+The frontend communicates with the backend through a same-origin Next.js API proxy instead of direct cross-origin requests. This simplifies authentication, avoids CORS issues, and keeps the frontend independent of backend deployment details. The trade-off is an additional network hop and environment-specific backend configuration.
+
+### Thin Client Architecture
+
+The frontend persists workflow graphs, enqueues runs, and displays live execution state. All orchestration, provider calls, and credit logic live on the backend. The trade-off is full dependence on the backend and Trigger worker being available — the UI cannot execute workflows in isolation.
+
+### Realtime + Poll Hybrid
+
+Live node status streams via Trigger.dev Realtime; full run detail (inputs, outputs, credits, provider) is backfilled through periodic REST polling. This delivers complete history UI without waiting on richer realtime payloads. The trade-off is extra API load and brief windows where stream and database state can diverge.
+
+### API & Playground Hub
+
+The API and Playground UI was implemented to mirror the Galaxy product while prioritizing the core workflow engine, execution pipeline, and history system. The current implementation provides API documentation, code samples, and playground execution, but some examples are static and playground runs execute as authenticated UI runs rather than API-key requests. The trade-off was prioritizing the core platform over advanced developer tooling, which can be extended to generate live request payloads and API responses from the workflow graph.
+
+---
+
+## What I'd Improve With More Time
+
+- **Native API Run Experience:** The Playground currently executes authenticated UI runs, while API-key-based runs must be triggered externally. I'd add a dedicated API execution mode that runs workflows using a selected API key, displays the exact HTTP request and response, and automatically populates the API Runs history.
+- **Complete Playground Input Support:** The Playground currently focuses on text-based request inputs. I'd extend it to support all request field types (images, files, selects, etc.) and execute workflows using inline request values, matching the capabilities of the public API.
+- **Pure Realtime Stream:** Remove the REST poll loop and rely on a single Trigger.dev Realtime or backend SSE stream for both status and full node detail.
+- **UI Copy & Microcopy:** A final polish pass on all user-facing text — button labels, tooltips, empty states, error messages, headings, and status labels — for consistency with the Galaxy reference and a production-quality feel.
