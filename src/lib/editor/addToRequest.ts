@@ -171,7 +171,6 @@ export function computeAddToRequest(input: AddToRequestInput): AddToRequestResul
     sourceHandle: fieldId,
     targetHandle: targetHandleId,
     type: "custom",
-    animated: true,
     data: { targetType: targetNode.type, targetHandle: targetHandleId },
   };
 

@@ -1,18 +1,26 @@
-import { memo } from "react";
-import { BaseEdge, getBezierPath, type EdgeProps } from "reactflow";
-import { getReceiverEdgeStroke } from "@/lib/editor/edgeStyles";
+import { memo, useCallback } from "react";
+import { BaseEdge, getBezierPath, useStore, type EdgeProps, type Node } from "reactflow";
+import { getSourceEdgeStroke } from "@/lib/editor/edgeStyles";
 
 function PreviewEdgeComponent({
   id,
+  source,
+  sourceHandleId,
   sourceX,
   sourceY,
   targetX,
   targetY,
   sourcePosition,
   targetPosition,
-  data,
   markerEnd,
-}: EdgeProps<{ targetType?: string; targetHandle?: string | null }>) {
+}: EdgeProps) {
+  const sourceNode = useStore(
+    useCallback(
+      (state) => state.nodeInternals.get(source) as Node | undefined,
+      [source],
+    ),
+  );
+
   const [edgePath] = getBezierPath({
     sourceX,
     sourceY,
@@ -22,7 +30,7 @@ function PreviewEdgeComponent({
     targetPosition,
   });
 
-  const stroke = getReceiverEdgeStroke(data?.targetType, data?.targetHandle);
+  const stroke = getSourceEdgeStroke(sourceNode, sourceHandleId);
 
   return (
     <BaseEdge
@@ -32,7 +40,9 @@ function PreviewEdgeComponent({
       style={{
         stroke,
         strokeWidth: 2,
+        strokeDasharray: "none",
         strokeLinecap: "round",
+        strokeLinejoin: "round",
         opacity: 0.8,
         pointerEvents: "none",
       }}

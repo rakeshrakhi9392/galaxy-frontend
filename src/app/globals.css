@@ -291,14 +291,9 @@ body {
 }
 
 .react-flow__edge-path {
-  stroke-dasharray: 5;
-  animation: dashdraw 0.5s linear infinite;
-}
-
-@keyframes dashdraw {
-  to {
-    stroke-dashoffset: -10;
-  }
+  stroke-dasharray: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* Screen-fixed canvas chrome — inset from canvas edges; history panel reserves right padding. */

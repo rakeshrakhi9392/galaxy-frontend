@@ -1,15 +1,19 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import {
   BaseEdge,
   EdgeLabelRenderer,
   getBezierPath,
+  useStore,
   type EdgeProps,
+  type Node,
 } from "reactflow";
 import { X } from "lucide-react";
-import { getReceiverEdgeStroke } from "@/lib/editor/edgeStyles";
+import { getSourceEdgeStroke } from "@/lib/editor/edgeStyles";
 
 function CustomEdgeComponent({
   id,
+  source,
+  sourceHandleId,
   sourceX,
   sourceY,
   targetX,
@@ -17,9 +21,15 @@ function CustomEdgeComponent({
   sourcePosition,
   targetPosition,
   selected,
-  data,
   markerEnd,
-}: EdgeProps<{ targetType?: string; targetHandle?: string | null }>) {
+}: EdgeProps) {
+  const sourceNode = useStore(
+    useCallback(
+      (state) => state.nodeInternals.get(source) as Node | undefined,
+      [source],
+    ),
+  );
+
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -29,7 +39,7 @@ function CustomEdgeComponent({
     targetPosition,
   });
 
-  const stroke = getReceiverEdgeStroke(data?.targetType, data?.targetHandle);
+  const stroke = getSourceEdgeStroke(sourceNode, sourceHandleId);
   const strokeWidth = selected ? 2.5 : 2;
 
   return (
@@ -48,6 +58,9 @@ function CustomEdgeComponent({
         style={{
           stroke: selected ? "#726beb" : stroke,
           strokeWidth,
+          strokeDasharray: "none",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
           filter: selected ? "drop-shadow(0 0 8px rgba(79,70,230,0.55))" : undefined,
         }}
       />

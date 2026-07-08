@@ -363,7 +363,6 @@ export function WorkflowCanvas({
       initialGraph.edges.map((e) => ({
         ...e,
         type: "custom",
-        animated: true,
         data: { targetType: ns.find((n) => n.id === e.target)?.type, targetHandle: e.targetHandle },
       })),
     );
@@ -466,7 +465,6 @@ export function WorkflowCanvas({
         graph.edges.map((e) => ({
           ...e,
           type: "custom",
-          animated: true,
           data: { targetType: ns.find((n) => n.id === e.target)?.type, targetHandle: e.targetHandle },
         })),
       );
@@ -635,7 +633,6 @@ export function WorkflowCanvas({
         sourceHandle,
         targetHandle,
         type: "custom",
-        animated: true,
         data: { targetType: targetNode?.type, targetHandle },
       };
       setEdges((eds) => {

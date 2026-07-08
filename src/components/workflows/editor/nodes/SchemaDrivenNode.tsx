@@ -292,10 +292,10 @@ export function SchemaDrivenNode({
                 onClick={() => canvasActions?.runNode(id)}
                 disabled={isExecuting}
                 className={[
-                  "nodrag flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all disabled:cursor-not-allowed",
+                  "nodrag flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
                   isExecuting
-                    ? "animate-run-button-executing border-workflow-accent-500/30 bg-workflow-accent-500/20 text-workflow-accent-500"
-                    : "border border-green-500/30 bg-green-500/20 text-green-500 hover:bg-green-500/30",
+                    ? "animate-run-button-executing cursor-not-allowed border border-workflow-accent-500/30 bg-workflow-accent-500/30 text-workflow-accent-500 disabled:cursor-not-allowed disabled:bg-workflow-accent-500/30 disabled:text-workflow-accent-500 disabled:opacity-100"
+                    : "border border-green-500/30 bg-green-500/20 text-green-500 hover:bg-green-500/30 disabled:cursor-not-allowed",
                 ].join(" ")}
               >
                 {isExecuting ? (
@@ -383,9 +383,7 @@ export function SchemaDrivenNode({
                     position={Position.Right}
                     id={handle.id}
                     className={[
-                      handle.dataType === "image_list"
-                        ? HANDLE_CLASS_BY_TYPE.number
-                        : HANDLE_CLASS_BY_TYPE[handle.dataType],
+                      HANDLE_CLASS_BY_TYPE[handle.dataType],
                       "!relative !transform-none",
                     ].join(" ")}
                   />
