@@ -7,13 +7,14 @@ import {
 import type { RunWithNodes, WorkflowRun } from "./types";
 
 function workflowRun(partial: Partial<WorkflowRun> & Pick<WorkflowRun, "id" | "status">): WorkflowRun {
+  const { status, ...rest } = partial;
   return {
     workflowId: "wf-1",
     scope: "FULL",
     targetNodeIds: [],
     triggerRunId: null,
     initiator: "UI",
-    status: partial.status,
+    status,
     estimatedCredits: null,
     actualCredits: null,
     errorSummary: null,
@@ -21,7 +22,7 @@ function workflowRun(partial: Partial<WorkflowRun> & Pick<WorkflowRun, "id" | "s
     finishedAt: null,
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
-    ...partial,
+    ...rest,
   };
 }
 

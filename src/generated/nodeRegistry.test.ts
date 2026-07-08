@@ -13,8 +13,12 @@ import {
 describe("nodeRegistry", () => {
   it("exposes input and output schemas for every registered node type", () => {
     for (const definition of nodeDefinitions) {
-      expect(getNodeInputSchema(definition.type)).toBe(NODE_INPUT_SCHEMAS[definition.type]);
-      expect(getNodeOutputSchema(definition.type)).toBe(NODE_OUTPUT_SCHEMAS[definition.type]);
+      // `nodeDefinitions` is generated with `type: string`; cast to the known schema map keys.
+      const nodeType = definition.type as keyof typeof NODE_INPUT_SCHEMAS;
+      expect(getNodeInputSchema(definition.type)).toBe(NODE_INPUT_SCHEMAS[nodeType]);
+      expect(getNodeOutputSchema(definition.type)).toBe(
+        NODE_OUTPUT_SCHEMAS[nodeType as keyof typeof NODE_OUTPUT_SCHEMAS],
+      );
       expect(getNodeDefinition(definition.type)?.input).toBeDefined();
       expect(getNodeDefinition(definition.type)?.output).toBeDefined();
     }
