@@ -6,10 +6,10 @@ export default defineConfig({
     jsx: "automatic",
   },
   test: {
-    environment: "node",
-    setupFiles: ["./src/test/setup.ts"],
-    environmentMatchGlobs: [["**/*.test.tsx", "jsdom"]],
-    exclude: ["**/node_modules/**", "**/dist/**", "**/*.integration.test.ts", "e2e/**"],
+    environment: "jsdom",
+    include: ["**/*.integration.test.ts"],
+    exclude: ["e2e/**"],
+    setupFiles: ["./src/test/setup.ts", "./src/test/msw/setupIntegration.ts"],
   },
   resolve: {
     alias: {

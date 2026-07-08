@@ -12,7 +12,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install chromium",
     "generate:nodes": "pnpm -C ../backend generate:nodes"
   },
   "dependencies": {
@@ -36,8 +40,10 @@
     "@vitejs/plugin-react": "^6.0.3",
     "autoprefixer": "^10.5.2",
     "eslint": "^9",
+    "@playwright/test": "^1.55.0",
     "eslint-config-next": "15.5.20",
     "jsdom": "^29.1.1",
+    "msw": "^2.11.2",
     "postcss": "^8.5.16",
     "tailwindcss": "^3.4.19",
     "typescript": "^5",
